@@ -30,15 +30,31 @@ let usuarioAtual = null;
 let colaboradorSelecionado = null;
 
 function sortearAmigos() {
-  const nomes = colaboradores.map(c => c.nome);
-  let sorteados = [...nomes].sort(() => Math.random() - 0.5);
+  let valido = false;
 
-  for (let i = 0; i < colaboradores.length; i++) {
-    if (colaboradores[i].nome === sorteados[i]) {
-      const j = (i + 1) % colaboradores.length;
-      [sorteados[i], sorteados[j]] = [sorteados[j], sorteados[i]];
+  while (!valido) {
+    const disponiveis = [...colaboradores];
+    valido = true;
+
+    for (let i = 0; i < colaboradores.length; i++) {
+      const atual = colaboradores[i];
+
+      // Filtra os disponíveis excluindo o próprio
+      const candidatos = disponiveis.filter(c => c.nome !== atual.nome);
+
+      if (candidatos.length === 0) {
+        valido = false;
+        break; // reinicia o sorteio
+      }
+
+      // Sorteia um candidato aleatório
+      const escolhido = candidatos[Math.floor(Math.random() * candidatos.length)];
+      atual.amigo = escolhido.nome;
+
+      // Remove o escolhido da lista de disponíveis
+      const index = disponiveis.findIndex(c => c.nome === escolhido.nome);
+      disponiveis.splice(index, 1);
     }
-    colaboradores[i].amigo = sorteados[i];
   }
 }
 
@@ -71,7 +87,6 @@ function entrar() {
 
   atualizarLista(participantes);
 
-  // Gerar botões excluindo o número do usuário
   const container = document.getElementById("buttons-container");
   container.innerHTML = "";
   colaboradores.forEach(colab => {
@@ -113,27 +128,29 @@ function revelar(colab) {
   document.getElementById("jogo").classList.add("hidden");
   document.getElementById("resultado").classList.remove("hidden");
 
+  const colaboradorLogado = colaboradores.find(c => c.nome === usuarioAtual.nome);
+
   document.getElementById("mensagem").innerHTML = `
     Nome: <strong>${usuarioAtual.nome}</strong><br>
     E-mail: <strong>${usuarioAtual.email}</strong><br>
     Número escolhido: <strong>${colab.numero}</strong><br>
-    Seu amigo secreto é: <strong>${colab.amigo}</strong>
+    Seu amigo secreto é: <strong>${colaboradorLogado.amigo}</strong>
   `;
 
-  // Gera e baixa o PDF automaticamente
   gerarPDF();
 }
-
 
 function gerarPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
+  const colaboradorLogado = colaboradores.find(c => c.nome === usuarioAtual.nome);
+
   doc.setFontSize(16);
   doc.text(`Nome: ${usuarioAtual.nome}`, 10, 20);
   doc.text(`E-mail: ${usuarioAtual.email}`, 10, 30);
   doc.text(`Número escolhido: ${colaboradorSelecionado.numero}`, 10, 40);
-  doc.text(`Amigo secreto: ${colaboradorSelecionado.amigo}`, 10, 50);
+  doc.text(`Amigo secreto: ${colaboradorLogado.amigo}`, 10, 50);
 
   doc.save(`amigo_secreto_${usuarioAtual.nome}.pdf`);
 }
