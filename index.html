@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amigo Secreto</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Cabeçalho com logo e slogan -->
+  <header class="cabecalho">
+    <img src="grupo_piaia_png.png" alt="Logo Grupo Piaia" class="logo" />
+    <div class="info-empresa">
+      <h1>🎉 Amigo Secreto</h1>
+      <p><em>"Escolha um número para amigo secreto"</em> — <strong>Informe seu Nome e e-mail para entrar</strong></p>
+    </div>
+  </header>
+
+  <!-- Área de login -->
+  <div id="login">
+    <input type="text" id="nome" placeholder="Seu nome" />
+    <input type="email" id="email" placeholder="Seu e-mail" />
+    <button onclick="entrar()">Entrar</button>
+  </div>
+
+  <!-- Área de sorteio -->
+  <div id="jogo" class="hidden">
+    <h2>Escolha seu número</h2>
+    <div id="buttons-container"></div>
+    <button id="btn-pdf" class="hidden" onclick="gerarPDF()">📄 Gerar PDF</button>
+  </div>
+
+  <!-- Resultado do sorteio -->
+  <div id="resultado" class="hidden">
+    <p id="mensagem"></p>
+  </div>
+
+  <!-- Lista de participantes -->
+  <div id="participantes">
+    <h3>Já participaram:</h3>
+    <ul id="lista-participantes"></ul>
+  </div>
+
+  <!-- Botão de reset -->
+  <div id="reset-container">
+    <button onclick="solicitarReset()">🔄 Resetar Sorteio - Administrador</button>
+  </div>
+
+  <!-- Rodapé -->
+  <footer>
+    <p>Desenvolvido por <strong>Marcelo Ferrari</strong> — CTS CONS. TECN. E SOFTWARES LTDA - 58.368.571/0001-63</p>
+  </footer>
+
+  <!-- Script principal -->
+  <script src="script.js"></script>
+</body>
+</html>
