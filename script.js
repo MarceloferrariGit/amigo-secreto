@@ -1,59 +1,28 @@
-let numerosUsados = JSON.parse(localStorage.getItem("numerosUsados") || "[]");
-let fila = JSON.parse(localStorage.getItem("filaDeEspera") || "[]");
-
-const colaboradores = [
-  { numero: 1, nome: "Tayane" },
-  { numero: 2, nome: "Cris" },
-  { numero: 3, nome: "Ionara" },
-  { numero: 4, nome: "Gabi" },
-  { numero: 5, nome: "Mateus" },
-  { numero: 6, nome: "Brenda" },
-  { numero: 7, nome: "Adelar" },
-  { numero: 8, nome: "Cecília" },
-  { numero: 9, nome: "Poly" },
-  { numero: 10, nome: "Jaqueline" },
-  { numero: 11, nome: "Rafael" },
-  { numero: 12, nome: "Salu" },
-  { numero: 13, nome: "Leandro" },
-  { numero: 14, nome: "Clari" },
-  { numero: 15, nome: "Brenda" },
-  { numero: 16, nome: "Marina" },
-  { numero: 17, nome: "Elton" },
-  { numero: 18, nome: "Bruno" },
-  { numero: 19, nome: "Lidiane" },
-  { numero: 20, nome: "Milena" },
-  { numero: 21, nome: "Josefa" },
-  { numero: 22, nome: "Bruna" },
-  { numero: 23, nome: "Ferrari" },
+const combinacoesFixas = [
+  { nome: "Tayane", amigo: "Elton" },
+  { nome: "Cristina", amigo: "Milena" },
+  { nome: "Ionara", amigo: "Mateus" },
+  { nome: "Gabriela", amigo: "Ferrari" },
+  { nome: "Mateus", amigo: "Gabriela" },
+  { nome: "Brenda", amigo: "Cristina" },
+  { nome: "Adelar", amigo: "Poliany" },
+  { nome: "Cecília", amigo: "Bruno" },
+  { nome: "Poliany", amigo: "Brenda" },
+  { nome: "Jaqueline", amigo: "Cecília" },
+  { nome: "Rafael", amigo: "Jaqueline" },
+  { nome: "Celimar Salu", amigo: "Clari" },
+  { nome: "Leandro", amigo: "Rafael" },
+  { nome: "Clari", amigo: "Celimar Salu" },
+  { nome: "Marina", amigo: "Ionara" },
+  { nome: "Elton", amigo: "Lidiane" },
+  { nome: "Bruno", amigo: "Tayane" },
+  { nome: "Lidiane", amigo: "Leandro" },
+  { nome: "Milena", amigo: "Adelar" },
+  { nome: "Bruna Jaqueline", amigo: "Marina" },
+  { nome: "Ferrari", amigo: "Bruna Jaqueline" }
 ];
 
 let usuarioAtual = null;
-let colaboradorSelecionado = null;
-
-function sortearAmigos() {
-  let valido = false;
-
-  while (!valido) {
-    const disponiveis = [...colaboradores];
-    valido = true;
-
-    for (let i = 0; i < colaboradores.length; i++) {
-      const atual = colaboradores[i];
-      const candidatos = disponiveis.filter(c => c.nome !== atual.nome);
-
-      if (candidatos.length === 0) {
-        valido = false;
-        break;
-      }
-
-      const escolhido = candidatos[Math.floor(Math.random() * candidatos.length)];
-      atual.amigo = escolhido.nome;
-
-      const index = disponiveis.findIndex(c => c.nome === escolhido.nome);
-      disponiveis.splice(index, 1);
-    }
-  }
-}
 
 function entrar() {
   const nome = document.getElementById("nome").value.trim();
@@ -64,9 +33,9 @@ function entrar() {
     return;
   }
 
-  const colaborador = colaboradores.find(c => c.nome.toLowerCase() === nome.toLowerCase());
-  if (!colaborador) {
-    alert("Nome não autorizado. Apenas colaboradores cadastrados podem participar.");
+  const par = combinacoesFixas.find(p => p.nome.toLowerCase() === nome.toLowerCase());
+  if (!par) {
+    alert("Nome não encontrado nas combinações.");
     return;
   }
 
@@ -76,42 +45,50 @@ function entrar() {
     return;
   }
 
-  // Adiciona à fila
-  fila.push(email);
-  localStorage.setItem("filaDeEspera", JSON.stringify(fila));
+  usuarioAtual = { nome: par.nome, email };
+  const amigoSecreto = par.amigo;
 
-  // Verifica se é o primeiro da fila
-  if (fila[0] !== email) {
-    alert("Aguarde sua vez na fila. Outro participante está realizando o sorteio.");
-    return;
-  }
-
-  const numeroDoUsuario = colaborador.numero;
-  usuarioAtual = { nome: colaborador.nome, email };
+  participantes.push(usuarioAtual);
+  localStorage.setItem("participantes", JSON.stringify(participantes));
 
   document.getElementById("login").classList.add("hidden");
-  document.getElementById("jogo").classList.remove("hidden");
+  document.getElementById("resultado").classList.remove("hidden");
 
-  atualizarLista(participantes);
+  document.getElementById("mensagem").innerHTML = `
+    Nome: <strong>${usuarioAtual.nome}</strong><br>
+    E-mail: <strong>${usuarioAtual.email}</strong><br>
+    Seu amigo secreto é: <strong>${amigoSecreto}</strong>
+  `;
 
-  const container = document.getElementById("buttons-container");
-  container.innerHTML = "";
-  colaboradores.forEach(colab => {
-    if (
-      !numerosUsados.includes(colab.numero) &&
-      colab.numero !== numeroDoUsuario
-    ) {
-      const btn = document.createElement("button");
-      btn.className = "numero";
-      btn.textContent = colab.numero;
-      btn.setAttribute("data-numero", colab.numero);
-      btn.onclick = () => revelar(colab);
-      container.appendChild(btn);
-    }
-  });
+  gerarPDF(amigoSecreto);
+  atualizarLista();
 }
 
-function atualizarLista(participantes) {
+function gerarPDF(amigo) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text(`Nome: ${usuarioAtual.nome}`, 10, 20);
+  doc.text(`E-mail: ${usuarioAtual.email}`, 10, 30);
+  doc.text(`Amigo secreto: ${amigo}`, 10, 40);
+
+  doc.save(`amigo_secreto_${usuarioAtual.nome}.pdf`);
+}
+
+function solicitarReset() {
+  const senha = prompt("Digite a senha para resetar:");
+  if (senha === "ghrdh27w@secreto") {
+    localStorage.removeItem("participantes");
+    alert("Sistema resetado com sucesso!");
+    location.reload();
+  } else {
+    alert("Senha incorreta. Reset cancelado.");
+  }
+}
+
+function atualizarLista() {
+  const participantes = JSON.parse(localStorage.getItem("participantes") || "[]");
   const ul = document.getElementById("lista-participantes");
   ul.innerHTML = "";
   participantes.forEach(p => {
@@ -121,66 +98,5 @@ function atualizarLista(participantes) {
   });
 }
 
-function revelar(colab) {
-  colaboradorSelecionado = colab;
-
-  numerosUsados.push(colab.numero);
-  localStorage.setItem("numerosUsados", JSON.stringify(numerosUsados));
-
-  const participantes = JSON.parse(localStorage.getItem("participantes") || "[]");
-  participantes.push(usuarioAtual);
-  localStorage.setItem("participantes", JSON.stringify(participantes));
-  atualizarLista(participantes);
-
-  document.getElementById("jogo").classList.add("hidden");
-  document.getElementById("resultado").classList.remove("hidden");
-
-  const colaboradorLogado = colaboradores.find(c => c.nome === usuarioAtual.nome);
-
-  document.getElementById("mensagem").innerHTML = `
-    Nome: <strong>${usuarioAtual.nome}</strong><br>
-    E-mail: <strong>${usuarioAtual.email}</strong><br>
-    Número escolhido: <strong>${colab.numero}</strong><br>
-    Seu amigo secreto é: <strong>${colaboradorLogado.amigo}</strong>
-  `;
-
-  gerarPDF();
-
-  // Remove da fila
-  fila = JSON.parse(localStorage.getItem("filaDeEspera") || "[]");
-  fila = fila.filter(e => e !== usuarioAtual.email);
-  localStorage.setItem("filaDeEspera", JSON.stringify(fila));
-}
-
-function gerarPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const colaboradorLogado = colaboradores.find(c => c.nome === usuarioAtual.nome);
-
-  doc.setFontSize(16);
-  doc.text(`Nome: ${usuarioAtual.nome}`, 10, 20);
-  doc.text(`E-mail: ${usuarioAtual.email}`, 10, 30);
-  doc.text(`Número escolhido: ${colaboradorSelecionado.numero}`, 10, 40);
-  doc.text(`Amigo secreto: ${colaboradorLogado.amigo}`, 10, 50);
-
-  doc.save(`amigo_secreto_${usuarioAtual.nome}.pdf`);
-}
-
-function solicitarReset() {
-  const senha = prompt("Digite a senha para resetar:");
-  if (senha === "ghrdh27w@secreto") {
-    localStorage.removeItem("participantes");
-    localStorage.removeItem("numerosUsados");
-    localStorage.removeItem("filaDeEspera");
-    alert("Sorteio resetado com sucesso!");
-    location.reload();
-  } else {
-    alert("Senha incorreta. Reset cancelado.");
-  }
-}
-
 // Inicialização
-sortearAmigos();
-const participantesIniciais = JSON.parse(localStorage.getItem("participantes") || "[]");
-atualizarLista(participantesIniciais);
+atualizarLista();
