@@ -1,6 +1,8 @@
 Amigo Secreto — Grupo Piaia
 Bem-vindo ao sistema de Amigo Secreto desenvolvido para o Grupo Piaia! Este projeto foi criado para conectar colaboradores com alegria e confiança, proporcionando uma experiência divertida, organizada e segura para o sorteio de amigos secretos.
 
+Teste: https://marceloferrarigit.github.io/amigo-secreto/
+
 Funcionalidades
    Sorteio automático com prevenção de autoatribuição
    Controle de acesso por fila (um participante por vez)
