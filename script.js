@@ -22,14 +22,39 @@ const combinacoesFixas = [
   { nome: "Ferrari", amigo: "Bruna Jaqueline" }
 ];
 
+// Senhas fixas geradas aleatoriamente
+const senhas = {
+  "Tayane": "4821",
+  "Cristina": "1937",
+  "Ionara": "7264",
+  "Gabriela": "8502",
+  "Mateus": "6149",
+  "Brenda": "2058",
+  "Adelar": "7391",
+  "Cecília": "9183",
+  "Poliany": "3472",
+  "Jaqueline": "5620",
+  "Rafael": "1346",
+  "Celimar Salu": "7810",
+  "Leandro": "4065",
+  "Clari": "9982",
+  "Marina": "2304",
+  "Elton": "6701",
+  "Bruno": "5893",
+  "Lidiane": "7430",
+  "Milena": "3127",
+  "Bruna Jaqueline": "8659",
+  "Ferrari": "1094"
+};
+
 let usuarioAtual = null;
 
 function entrar() {
   const nome = document.getElementById("nome").value.trim();
-  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value.trim();
 
-  if (!nome || !email) {
-    alert("Preencha nome e e-mail.");
+  if (!nome || !senha) {
+    alert("Preencha nome e senha.");
     return;
   }
 
@@ -39,13 +64,19 @@ function entrar() {
     return;
   }
 
+  const senhaCorreta = senhas[par.nome];
+  if (senha !== senhaCorreta) {
+    alert("Senha incorreta.");
+    return;
+  }
+
   const participantes = JSON.parse(localStorage.getItem("participantes") || "[]");
-  if (participantes.find(p => p.email === email)) {
+  if (participantes.find(p => p.nome === par.nome)) {
     alert("Você já participou!");
     return;
   }
 
-  usuarioAtual = { nome: par.nome, email };
+  usuarioAtual = { nome: par.nome };
   const amigoSecreto = par.amigo;
 
   participantes.push(usuarioAtual);
@@ -56,7 +87,6 @@ function entrar() {
 
   document.getElementById("mensagem").innerHTML = `
     Nome: <strong>${usuarioAtual.nome}</strong><br>
-    E-mail: <strong>${usuarioAtual.email}</strong><br>
     Seu amigo secreto é: <strong>${amigoSecreto}</strong>
   `;
 
@@ -70,8 +100,7 @@ function gerarPDF(amigo) {
 
   doc.setFontSize(16);
   doc.text(`Nome: ${usuarioAtual.nome}`, 10, 20);
-  doc.text(`E-mail: ${usuarioAtual.email}`, 10, 30);
-  doc.text(`Amigo secreto: ${amigo}`, 10, 40);
+  doc.text(`Amigo secreto: ${amigo}`, 10, 30);
 
   doc.save(`amigo_secreto_${usuarioAtual.nome}.pdf`);
 }
@@ -93,7 +122,7 @@ function atualizarLista() {
   ul.innerHTML = "";
   participantes.forEach(p => {
     const li = document.createElement("li");
-    li.textContent = `${p.nome} (${p.email})`;
+    li.textContent = `${p.nome}`;
     ul.appendChild(li);
   });
 }
