@@ -1,4 +1,5 @@
 let numerosUsados = JSON.parse(localStorage.getItem("numerosUsados") || "[]");
+let fila = JSON.parse(localStorage.getItem("filaDeEspera") || "[]");
 
 const colaboradores = [
   { numero: 1, nome: "Tayane" },
@@ -38,20 +39,16 @@ function sortearAmigos() {
 
     for (let i = 0; i < colaboradores.length; i++) {
       const atual = colaboradores[i];
-
-      // Filtra os disponíveis excluindo o próprio
       const candidatos = disponiveis.filter(c => c.nome !== atual.nome);
 
       if (candidatos.length === 0) {
         valido = false;
-        break; // reinicia o sorteio
+        break;
       }
 
-      // Sorteia um candidato aleatório
       const escolhido = candidatos[Math.floor(Math.random() * candidatos.length)];
       atual.amigo = escolhido.nome;
 
-      // Remove o escolhido da lista de disponíveis
       const index = disponiveis.findIndex(c => c.nome === escolhido.nome);
       disponiveis.splice(index, 1);
     }
@@ -76,6 +73,16 @@ function entrar() {
   const participantes = JSON.parse(localStorage.getItem("participantes") || "[]");
   if (participantes.find(p => p.email === email)) {
     alert("Você já participou!");
+    return;
+  }
+
+  // Adiciona à fila
+  fila.push(email);
+  localStorage.setItem("filaDeEspera", JSON.stringify(fila));
+
+  // Verifica se é o primeiro da fila
+  if (fila[0] !== email) {
+    alert("Aguarde sua vez na fila. Outro participante está realizando o sorteio.");
     return;
   }
 
@@ -138,6 +145,11 @@ function revelar(colab) {
   `;
 
   gerarPDF();
+
+  // Remove da fila
+  fila = JSON.parse(localStorage.getItem("filaDeEspera") || "[]");
+  fila = fila.filter(e => e !== usuarioAtual.email);
+  localStorage.setItem("filaDeEspera", JSON.stringify(fila));
 }
 
 function gerarPDF() {
@@ -160,6 +172,7 @@ function solicitarReset() {
   if (senha === "ghrdh27w@secreto") {
     localStorage.removeItem("participantes");
     localStorage.removeItem("numerosUsados");
+    localStorage.removeItem("filaDeEspera");
     alert("Sorteio resetado com sucesso!");
     location.reload();
   } else {
