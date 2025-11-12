@@ -13,7 +13,7 @@ Funcionalidades
    
 Como usar
     Acesse o site publicado via GitHub Pages ou Netlify
-    Informe seu nome e e-mail
+    Informe seu nome e senha
     Aguarde sua vez na fila
     Escolha um número disponível
 
@@ -36,7 +36,7 @@ Slogan
   “Conectando pessoas com alegria e confiança” — Grupo Piaia
 
 Reset do sistema
-  Para reiniciar o sorteio e limpar os dados, use o botão de reset e insira a senha: ghrdh27w@secreto
+  Para reiniciar o sorteio e limpar os dados, use o botão de reset e insira a senha: xxxxxxxxxxxx
 
 Deploy
   Este projeto pode ser publicado facilmente via:
